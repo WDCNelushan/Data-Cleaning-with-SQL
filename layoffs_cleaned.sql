@@ -152,3 +152,10 @@ from layoffs_staging2;
 
 select *
 from layoffs_staging2;
+
+-- 6. Delete Unnecessary Columns
+
+ALTER TABLE layoffs_staging2 DROP COLUMN row_num;
+
+select *
+from layoffs_staging2;
