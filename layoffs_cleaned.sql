@@ -86,6 +86,69 @@ UPDATE layoffs_staging2 SET `date` = str_to_date(`date`,'%m/%d/%Y');
 
 ALTER TABLE layoffs_staging2 MODIFY COLUMN `date` DATE;
 
+select distinct company
+from layoffs_staging2
+order by company;
+
+select distinct stage
+from layoffs_staging2
+order by stage;
+
+select distinct location
+from layoffs_staging2
+order by location;
+
+select distinct industry
+from layoffs_staging2
+order by industry;
+
+select distinct country
+from layoffs_staging2
+order by country;
+
+-- 5. Remove / Populate null or blank values
+
+-- Change blank strings to NULLs
+UPDATE layoffs_staging2 SET industry = NULL WHERE industry = '';
+
+-- Populate NULLs. If a company is missing an industry, but another row for the same company has it, you can join the table to itself to fill it in.
+
 select *
+from layoffs_staging2
+where industry IS NULL;
+
+select *
+from layoffs_staging2
+where company = "Airbnb";  -- Same company and same location but one has industry as Travel and other one is null. So we assume null one is also Travel and populate it.
+
+select *
+from layoffs_staging2 AS t1
+JOIN layoffs_staging2 AS t2
+	ON t1.company = t2.company AND t1.location = t2.location
+where t1.industry IS NULL AND t2.industry IS NOT NULL;
+
+update layoffs_staging2 AS t1
+JOIN layoffs_staging2 AS t2
+	ON t1.company = t2.company AND t1.location = t2.location
+set t1.industry = t2.industry
+where t1.industry IS NULL AND t2.industry IS NOT NULL;
+
+select *
+from layoffs_staging2
+where industry IS NULL;  -- WE cannot populate the "Bally's Intereactive"
+
+-- Remove only both total_paid_off and percentage_laid_off is NULL
+
+select *
+from layoffs_staging2
+where total_laid_off IS NULL AND percentage_laid_off IS NULL;
+
+delete 
+from layoffs_staging2
+where total_laid_off IS NULL AND percentage_laid_off IS NULL;
+
+select count(*)
 from layoffs_staging2;
 
+select *
+from layoffs_staging2;
